@@ -38,11 +38,11 @@ def checkValid(d):
 
 def validateField(f, d):
     def vHeight(x):
-        if re.fullmatch("(.)*cm", x):
+        if "cm" in x: 
             i = int(re.sub("[\D]", "", x))
             if 150 <= i <= 193:
                 return True
-        if re.fullmatch("(.)*in", x):
+        if "in" in x:
             i = int(re.sub("[\D]", "", x))
             if 59 <= i <= 76:
                 return True
