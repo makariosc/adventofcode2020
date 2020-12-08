@@ -16,27 +16,21 @@ def processInsns(i, seen, acc, iChanged):
     insn = m.group(1)
     val = int(m.group(2))
 
-    runInsn = { "acc": lambda t: processInsns(i+1, seen, acc+val, t),
-                "nop": lambda t: processInsns(i+1, seen, acc, t),
-                "jmp": lambda t: processInsns(i+val, seen, acc, t) }
+    runInsn = { "acc": lambda t=iChanged: processInsns(i+1, seen, acc+val, t),
+                "nop": lambda t=iChanged: processInsns(i+1, seen, acc, t),
+                "jmp": lambda t=iChanged: processInsns(i+val, seen, acc, t) }
+
+    runAltInsn = { "acc": lambda: runInsn["acc"](),
+                   "nop": lambda: runInsn["jmp"](True),
+                   "jmp": lambda: runInsn["nop"](True) }
 
     seen.add(i)
-    if insn == "acc":
-        return runInsn["acc"](iChanged)
-    elif insn == "nop":
-        if iChanged:
-            return runInsn["nop"](iChanged)
-        try:
-            return runInsn["nop"](iChanged)
-        except Exception:
-            return runInsn["jmp"](True)
-    elif insn == "jmp":
-        if iChanged:
-            return runInsn["jmp"](iChanged)
-        try:
-            return runInsn["jmp"](iChanged)
-        except Exception:
-            return runInsn["nop"](True)
+    if iChanged:
+        return runInsn[insn]()
+    try:
+        return runInsn[insn]()
+    except Exception:
+        return runAltInsn[insn]()
 
     return acc
     
