@@ -33,7 +33,5 @@ def two(lines):
 
     return d[max(lines)]
 
-
-
 print(f"one: {one(lines)}")
 print(f"two: {two(lines)}")
