@@ -3,22 +3,31 @@ from math import sin, cos, radians
 f = open("input", "r+")
 lines = [l.strip() for l in f.readlines()]
 
+def rot(pos, angle):
+    rad = radians(angle)
+    x = cos(rad)*pos.real - sin(rad)*pos.imag
+    y = cos(rad)*pos.imag + sin(rad)*pos.real
+    return complex(x, y)
+
 def one():
     pos = 0+0j
     angle = 0
 
-    case = {'N': lambda x, pos, angle: (pos + x, angle),
-            'S': lambda x, pos, angle: (pos - x, angle),
-            'E': lambda x, pos, angle: (pos + complex(0, x), angle),
-            'W': lambda x, pos, angle: (pos - complex(0, x), angle),
-            'L': lambda x, pos, angle: (pos, angle + x),
-            'R': lambda x, pos, angle: (pos, angle - x),
-            'F': lambda x, pos, angle: (pos + complex(sin(radians(angle))*x,cos(radians(angle))*x), angle)}
+    def case(x, pos, angle):
+        return {
+            'N': (pos + x, angle),
+            'S': (pos - x, angle),
+            'E': (pos + complex(0, x), angle),
+            'W': (pos - complex(0, x), angle),
+            'L': (pos, angle + x),
+            'R': (pos, angle - x),
+            'F': (pos + complex(sin(radians(angle))*x,cos(radians(angle))*x), angle)
+        }
 
     for l in lines:
         d = l[0]
         n = int(l[1:])
-        pos, angle = case[d](n, pos, angle)
+        pos, angle = case(n, pos, angle)[d]
 
     return abs(pos.imag) + abs(pos.real)
 
@@ -26,20 +35,20 @@ def two():
     wpos = 10+1j
     pos = 0+0j
 
-    case = {'N': lambda x, pos, wpos: (pos, wpos + complex(0, x)),
-            'S': lambda x, pos, wpos: (pos, wpos - complex(0, x)),
-            'E': lambda x, pos, wpos: (pos, wpos + x),
-            'W': lambda x, pos, wpos: (pos, wpos - x),
-            'L': lambda x, pos, wpos: (pos, complex(cos(radians(x))*wpos.real - sin(radians(x))*wpos.imag, 
-                                                    cos(radians(x))*wpos.imag + sin(radians(x))*wpos.real)),
-            'R': lambda x, pos, wpos: (pos, complex(cos(radians(-x))*wpos.real - sin(radians(-x))*wpos.imag,
-                                                    cos(radians(-x))*wpos.imag + sin(radians(-x))*wpos.real)),
-            'F': lambda x, pos, wpos: (pos + wpos*x, wpos)}
+    def case(x, pos, wpos):
+        return {
+        'N': (pos, wpos + complex(0, x)),
+        'S': (pos, wpos - complex(0, x)),
+        'E': (pos, wpos + x),
+        'W': (pos, wpos - x),
+        'L': (pos, rot(wpos, x)),
+        'R': (pos, rot(wpos, -x)), 
+        'F': (pos + wpos*x, wpos)}
 
     for l in lines:
         d = l[0]
         n = int(l[1:])
-        pos, wpos = case[d](n, pos, wpos)
+        pos, wpos = case(n, pos, wpos)[d]
 
     return abs(pos.imag) + abs(pos.real)
 
